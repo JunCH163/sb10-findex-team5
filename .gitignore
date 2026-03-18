@@ -8,6 +8,7 @@ out/
 # Gradle
 .gradle/
 build/
+.gradle-user-home/
 
 # Logs
 *.log
@@ -40,3 +41,4 @@ application-local.properties
 
 # Windows
 Desktop.ini
+/src/main/generated/
