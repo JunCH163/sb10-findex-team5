@@ -1,11 +1,10 @@
 # 👥 2026-03-sb10-part2-team5
-
 ## 📈 금융 지수 데이터를 한눈에 제공하는 대시보드 서비스 [ Findex ]
 
 <table align="center">
     <tr align="center">
         <td colspan="5">
-            <p style="font-size: x-large; font-weight: bold;">2026년 3월 Spring Backend10기 Team5</p>
+            <p style="font-size: x-large; font-weight: bold;">2026년 3월 Spring Backend10기 Ant-Man (Team5)</p>
         </td>
     </tr>
     <tr align="center">
@@ -390,14 +389,24 @@ src/
 │   │   ├── com/
 │   │       ├── sprint/
 │   │           ├── findex/
+│   │               ├── aop/
+│   │               │   └── TimeTraceAspect.java
 │   │               ├── client/
+│   │               │   ├── MarketIndexApiCacheService.java
 │   │               │   └── MarketIndexApiClient.java
 │   │               ├── config/
 │   │               │   ├── MarketIndexApiConfig.java
 │   │               │   ├── MarketIndexApiProperties.java
 │   │               │   ├── OpenApiConfig.java
-│   │               │   └── QueryDSLConfig.java
+│   │               │   ├── QueryDSLConfig.java
+│   │               │   └── SchedulingConfig.java
 │   │               ├── controller/
+│   │               │   ├── api/
+│   │               │   │   ├── AutoSyncConfigApi.java
+│   │               │   │   ├── DashboardApi.java
+│   │               │   │   ├── IndexDataApi.java
+│   │               │   │   ├── IndexInfoApi.java
+│   │               │   │   └── IndexSyncApi.java
 │   │               │   ├── AutoSyncConfigController.java
 │   │               │   ├── DashboardController.java
 │   │               │   ├── IndexDataController.java
@@ -406,15 +415,20 @@ src/
 │   │               ├── dto/
 │   │               │   ├── autosyncconfig/
 │   │               │   │   ├── AutoSyncConfigDto.java
+│   │               │   │   ├── AutoSyncConfigQueryCondition.java
 │   │               │   │   └── AutoSyncConfigUpdateRequest.java
 │   │               │   ├── dashboard/
-│   │               │   │   └── IndexPerformanceDto.java
+│   │               │   │   ├── IndexChartDto.java
+│   │               │   │   ├── IndexPerformanceDto.java
+│   │               │   │   └── RankedIndexPerformanceDto.java
 │   │               │   ├── indexdata/
 │   │               │   │   ├── IndexDataCreateRequest.java
 │   │               │   │   ├── IndexDataDto.java
+│   │               │   │   ├── IndexDataExportRequest.java
+│   │               │   │   ├── IndexDataQueryCondition.java
+│   │               │   │   ├── IndexDataSortField.java
 │   │               │   │   └── IndexDataUpdateRequest.java
 │   │               │   ├── indexinfo/
-│   │               │   │   ├── CursorPageResponseIndexInfoDto.java
 │   │               │   │   ├── IndexInfoCreateRequest.java
 │   │               │   │   ├── IndexInfoDto.java
 │   │               │   │   ├── IndexInfoQueryCondition.java
@@ -423,9 +437,15 @@ src/
 │   │               │   ├── openapi/
 │   │               │   │   ├── MarketIndexApiRequest.java
 │   │               │   │   └── MarketIndexApiResponse.java
+│   │               │   ├── response/
+│   │               │   │   └── PageResponse.java
 │   │               │   ├── sync/
+│   │               │       ├── IndexDataSyncRequest.java
+│   │               │       ├── IndexDataSyncSource.java
+│   │               │       ├── IndexInfoLookup.java
 │   │               │       ├── IndexInfoSyncSource.java
-│   │               │       └── SyncJobDto.java
+│   │               │       ├── SyncJobDto.java
+│   │               │       └── SyncJobQueryCondition.java
 │   │               ├── entity/
 │   │               │   ├── base/
 │   │               │   │   ├── BaseEntity.java
@@ -435,16 +455,19 @@ src/
 │   │               │   ├── IndexInfo.java
 │   │               │   └── IntegrationTask.java
 │   │               ├── enums/
+│   │               │   ├── AutoSyncConfigSortField.java
+│   │               │   ├── ChartPeriodType.java
+│   │               │   ├── IndexInfoSortField.java
 │   │               │   ├── JobResult.java
 │   │               │   ├── JobType.java
 │   │               │   ├── PeriodType.java
-│   │               │   └── SourceType.java
+│   │               │   ├── SourceType.java
+│   │               │   └── SyncJobSortField.java
 │   │               ├── exception/
 │   │               │   ├── BusinessLogicException.java
 │   │               │   ├── ErrorResponse.java
 │   │               │   ├── ExceptionCode.java
-│   │               │   ├── GlobalExceptionHandler.java
-│   │               │   └── testController.java
+│   │               │   └── GlobalExceptionHandler.java
 │   │               ├── mapper/
 │   │               │   ├── AutoSyncConfigMapper.java
 │   │               │   ├── DashboardMapper.java
@@ -455,33 +478,62 @@ src/
 │   │               ├── repository/
 │   │               │   ├── dsl/
 │   │               │   │   ├── impl/
-│   │               │   │   │   └── IndexInfoCustomRepositoryImpl.java
-│   │               │   │   └── IndexInfoCustomRepository.java
+│   │               │   │   │   ├── AutoSyncConfigCustomRepositoryImpl.java
+│   │               │   │   │   ├── IndexDataCustomRepositoryImpl.java
+│   │               │   │   │   ├── IndexInfoCustomRepositoryImpl.java
+│   │               │   │   │   └── IntegrationTaskCustomRepositoryImpl.java
+│   │               │   │   ├── AutoSyncConfigCustomRepository.java
+│   │               │   │   ├── IndexDataCustomRepository.java
+│   │               │   │   ├── IndexInfoCustomRepository.java
+│   │               │   │   └── IntegrationTaskCustomRepository.java
 │   │               │   ├── AutoSyncConfigRepository.java
 │   │               │   ├── DashboardRepository.java
 │   │               │   ├── IndexDataRepository.java
 │   │               │   ├── IndexInfoRepository.java
 │   │               │   └── IntegrationTaskRepository.java
+│   │               ├── scheduler/
+│   │               │   └── AutoSyncScheduler.java
 │   │               ├── service/
 │   │               │   ├── AutoSyncConfigService.java
 │   │               │   ├── DashboardService.java
 │   │               │   ├── IndexDataService.java
+│   │               │   ├── IndexDataSyncFailureService.java
+│   │               │   ├── IndexDataSyncService.java
 │   │               │   ├── IndexInfoService.java
-│   │               │   └── IndexSyncService.java
+│   │               │   ├── IndexInfoSyncFailureService.java
+│   │               │   ├── IndexInfoSyncService.java
+│   │               │   ├── IndexSyncService.java
+│   │               │   └── IntegrationTaskService.java
 │   │               ├── util/
 │   │               │   ├── ClientIpResolver.java
+│   │               │   ├── IndexNameResolver.java
 │   │               │   └── SortUtils.java
 │   │               └── FindexApplication.java
 │   ├── resources/
 │       ├── static/
 │       │   ├── assets/
-│       │   │   ├── fonts/
+│       │   │   ├── Pretendard-Black-B7X87vPW.woff2
+│       │   │   ├── Pretendard-Black-CGKHU3YP.woff
+│       │   │   ├── Pretendard-Bold-BYNivUXw.woff2
+│       │   │   ├── Pretendard-Bold-DD7wHHNl.woff
+│       │   │   ├── Pretendard-ExtraBold-C0vVUedy.woff2
+│       │   │   ├── Pretendard-ExtraBold-DkRXFB8B.woff
+│       │   │   ├── Pretendard-ExtraLight-Bi0YRlFr.woff2
+│       │   │   ├── Pretendard-ExtraLight-CmnYHmfp.woff
+│       │   │   ├── Pretendard-Light-BSr3DBFh.woff
+│       │   │   ├── Pretendard-Light-knQmDAda.woff2
+│       │   │   ├── Pretendard-Medium-Cs2k_Pp2.woff
+│       │   │   ├── Pretendard-Medium-Dw2vNklR.woff2
+│       │   │   ├── Pretendard-Regular-BhrLQoBv.woff2
+│       │   │   ├── Pretendard-Regular-D5CgADJ9.woff
+│       │   │   ├── Pretendard-SemiBold-ClEDdoZU.woff2
+│       │   │   ├── Pretendard-SemiBold-SXfe8JY8.woff
+│       │   │   ├── Pretendard-Thin-Cq3km6ap.woff
+│       │   │   ├── Pretendard-Thin-DWJVAZ2K.woff2
 │       │   │   ├── index-Bweg6EuF.css
 │       │   │   └── index-D-ZKSpBz.js
 │       │   ├── favico.ico
 │       │   └── index.html
-│       ├── application-local.yaml
-│       ├── application-prod.yaml
 │       ├── application.yaml
 │       ├── schema-h2.sql
 │       └── schema-postgresql.sql
@@ -490,9 +542,21 @@ src/
     │   ├── com/
     │       ├── sprint/
     │           ├── findex/
+    │               ├── client/
+    │               │   └── MarketIndexApiCacheServiceTest.java
+    │               ├── dto/
+    │               │   ├── autosyncconfig/
+    │               │       └── AutoSyncConfigQueryConditionTest.java
+    │               ├── scheduler/
+    │               │   └── AutoSyncSchedulerTest.java
+    │               ├── service/
+    │               │   ├── AutoSyncConfigServiceTest.java
+    │               │   ├── IndexInfoServiceTest.java
+    │               │   └── IntegrationTaskServiceTest.java
     │               └── FindexApplicationTests.java
     ├── resources/
         └── application-test.yaml
+
 ```
 
   </div>
@@ -509,7 +573,7 @@ src/
 ---
 
 ## **프로젝트 회고록**
-
+- 변경 가능 
 - [송시연]()
 - [김민형]()
 - [박성국]()
