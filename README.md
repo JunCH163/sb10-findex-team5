@@ -163,6 +163,7 @@
   <summary><b>🏃 송시연 (Team Leader)</b></summary>
   <div markdown="1">
 <img width="399" alt="Image" src="https://github.com/user-attachments/assets/bc7e484e-4924-48bc-8009-4fb790f4aabe" />    
+<img width="1026" height="100" alt="image" src="https://github.com/user-attachments/assets/b3e90db6-739c-4937-868d-327d7ea30c7c" />
 
 ## API 구현
 
