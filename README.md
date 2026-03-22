@@ -147,12 +147,13 @@
 
 | Category | Link | Description |
 | :--- | :--- | :--- |
-| **Workspace** | [Notion Workspace](https://www.notion.so/SB-10-Part-2-5-dc847b8a4b9982febcb701a6f526f9ef) | 기획 문서, 회의록 및 팀 컨벤션 관리 |
+| **Workspace** | [Notion Workspace](https://orchid-science-d92.notion.site/SB-10-Part-2-5-dc847b8a4b9982febcb701a6f526f9ef?source=copy_link) | 기획 문서, 회의록 및 팀 컨벤션 관리 |
 | **Management** | [GitHub Issues & Gantt](https://github.com/orgs/sb10-part2-team5/projects/3/views/4) | 이슈 카드를 활용한 역할 및 일정 관리 |
-| **요구사항 명세서** | [요구사항 명세서](https://docs.google.com/spreadsheets/d/1PLhsk7xDISDc0zdj5JRs6A1bDkwGXaO9h_cD0xURmUk/edit?gid=0#gid=0)| 구글 스프레드 시트를 활용한 요구사항 명세 작성 |
-| **API Docs** | [Swagger UI](링크주소) | RESTful API 명세서 |
-| **Design** | [Database ERD](https://dbdiagram.io/d/69b1119c77d079431b56b7c9) | 데이터베이스 구조 설계도 |
-| **발표 자료** | [발표 자료](링크주소)/[pdf 파일]()| 발표 자료 |
+| **요구사항 명세서** | [요구사항 명세서](https://docs.google.com/spreadsheets/d/1PLhsk7xDISDc0zdj5JRs6A1bDkwGXaO9h_cD0xURmUk/edit?gid=0#gid=0)/[요구사항정의서-antman.pdf](https://github.com/user-attachments/files/26131400/-antman.pdf)| 구글 스프레드 시트를 활용한 요구사항 명세 작성 |
+| **API Docs** | [Swagger UI](https://sb10-findex-team5-production.up.railway.app/swagger-ui/index.html)/[findex-antman.json](https://github.com/user-attachments/files/26131221/findex-antman.json) | RESTful API 명세서 |
+| **Design** | [Database ERD](https://dbdiagram.io/d/69b1119c77d079431b56b7c9)/[diagram.png](https://github.com/user-attachments/assets/5caeb4ae-2f8c-48a4-ba08-0ffcd0b01ab4) | dbDiagram을 통한 데이터베이스 구조 설계도 |
+| **발표 자료** | [발표 자료](https://www.canva.com/design/DAHERHoa-VM/I_1-_LeBBnz7Z0PFjAuHkQ/view?utm_content=DAHERHoa-VM&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h2fa8b156c3)/[FINDEX-AntMan.pdf](https://github.com/user-attachments/files/26131240/FINDEX-AntMan.pdf)| 발표 자료 |
+
 
 -----
 
@@ -184,7 +185,7 @@
 
 ## 성능 최적화
 
-- **동적 TTL 캐시**
+- **캐시**
   - 금융위원회 오픈 API 응답에 대한 캐시 레이어(`MarketIndexApiCacheService`) 구현
   - 과거 데이터(변경 불가) 7일 TTL / 당일 데이터(갱신 가능) 1시간 TTL 차등 적용
   - 지수 데이터 연동 약 1,000건 기준 응답 시간 개선 (4183ms → 495ms)
@@ -203,7 +204,7 @@
   <summary><b>🏃 김민형</b></summary>
   <div markdown="1">
 
-### 1. 지수 정보 관리 API
+## 지수 정보 관리 API
 
 - **지수 정보 CRUD 구현**: 지수 정보의 등록, 수정, 삭제, 전체 목록 및 요약 목록 조회 API 개발
 - **QueryDSL 기반 정렬 조회**:
@@ -211,22 +212,35 @@
   - 첫 번째 페이지 조회 시 불필요한 `Count` 쿼리가 발생하지 않도록 최적화하여 DB 부하 감소
 - **DTO Projection 최적화**: 요약 목록 조회 시 엔티티 전체가 아닌 필요한 필드만 직접 조회하여 응답 속도 및 메모리 효율 개선
 
-### 2. 전역 예외 처리 및 로그 시스템 (Monitoring)
+## 전역 예외 처리 및 로그 시스템
 
-- **전역 예외 처리(Global Exception Handling)**:
+- **전역 예외 처리**:
   - `@RestControllerAdvice`를 활용하여 비즈니스 에러와 시스템 에러를 분리 설계
   - 파라미터 유효성 검증 실패 시 사용자에게 명확한 에러 메시지를 전달하는 통합 응답 구조 구축
+    ```json
+    {
+      "timestamp": "2026-03-20T00:57:27.483239010Z",
+      "status": 409,
+      "message": "Index Already Exists With Same Classification And Name",
+      "fieldErrors": null,
+      "constraintViolationErrors": null
+    }
+    ```
 - **AOP 기반 성능 추적 로그**:
   - **서비스 별 임계값 설정**: 일반 요청(150ms)과 외부 연동 작업(500ms)의 성능 기준을 분리하여 정밀한 모니터링 환경 구축
   - 실패 시 파라미터 값을 100자 내로 요약 출력하여 로그 가독성 확보
+    ```test
+    [OK] IndexInfoController.getIndexInfoList(..) | 7ms
+    [SLOW] IndexSyncController.syncIndexInfo(..) | 4220ms
+    ```
 
-### 3. 성능 최적화 및 인프라 개선 (Performance & Infra)
+## 성능 최적화 및 인프라 개선
 
 - **네트워크 지연 개선 (리전 최적화)**:
   - 브라우저 Waterfall 분석을 통해 지연 원인을 파악하고, 서버와 데이터베이스 리전을 **미국(US)에서 싱가포르(SG)**로 이전
   - 전체 응답 속도 약 **44% 개선 (1.17s → 0.65s)** 
 - **삭제 로직 최적화 (N+1 해결)**:
-  - 대량 데이터 삭제 시 발생하는 N+1 문제를 **벌크 쿼리**로 해결
+  - 대량 데이터 삭제 시 발생하는 N+1 문제를 **벌크 삭제**로 해결
   - DB 레벨의 `ON DELETE CASCADE` 설정을 활용하여 최종적으로 삭제 쿼리를 **2번에서 1번으로 단축**
 
 <img width="1437" alt="Image" src="https://github.com/user-attachments/assets/259036d9-bf1a-4262-ae04-8fa36c58b231" />
@@ -335,6 +349,10 @@
 <details>
   <summary><b>🏃 전창현</b></summary>
   <div markdown="1">
+      
+![시연영상](https://github.com/user-attachments/assets/693a1dd1-bfe8-4e2d-a1c6-74372a977589)
+
+
 
 ## API 구현
 - **즐겨찾기 지수 성과 조회 API**
@@ -377,7 +395,6 @@
 
 
 ## 📁 **파일 구조**
-- (최종 구조 확정시, 변경 예정)
 
 <details>
   <summary>파일 구조</summary>
@@ -513,26 +530,6 @@ src/
 │   ├── resources/
 │       ├── static/
 │       │   ├── assets/
-│       │   │   ├── Pretendard-Black-B7X87vPW.woff2
-│       │   │   ├── Pretendard-Black-CGKHU3YP.woff
-│       │   │   ├── Pretendard-Bold-BYNivUXw.woff2
-│       │   │   ├── Pretendard-Bold-DD7wHHNl.woff
-│       │   │   ├── Pretendard-ExtraBold-C0vVUedy.woff2
-│       │   │   ├── Pretendard-ExtraBold-DkRXFB8B.woff
-│       │   │   ├── Pretendard-ExtraLight-Bi0YRlFr.woff2
-│       │   │   ├── Pretendard-ExtraLight-CmnYHmfp.woff
-│       │   │   ├── Pretendard-Light-BSr3DBFh.woff
-│       │   │   ├── Pretendard-Light-knQmDAda.woff2
-│       │   │   ├── Pretendard-Medium-Cs2k_Pp2.woff
-│       │   │   ├── Pretendard-Medium-Dw2vNklR.woff2
-│       │   │   ├── Pretendard-Regular-BhrLQoBv.woff2
-│       │   │   ├── Pretendard-Regular-D5CgADJ9.woff
-│       │   │   ├── Pretendard-SemiBold-ClEDdoZU.woff2
-│       │   │   ├── Pretendard-SemiBold-SXfe8JY8.woff
-│       │   │   ├── Pretendard-Thin-Cq3km6ap.woff
-│       │   │   ├── Pretendard-Thin-DWJVAZ2K.woff2
-│       │   │   ├── index-Bweg6EuF.css
-│       │   │   └── index-D-ZKSpBz.js
 │       │   ├── favico.ico
 │       │   └── index.html
 │       ├── application.yaml
@@ -573,10 +570,9 @@ src/
 
 ---
 
-## **프로젝트 회고록**
-- 변경 가능 
-- [송시연]()
-- [김민형]()
-- [박성국]()
-- [성주현]()
-- [전창현]()
+## **프로젝트 개인 개발 리포트**
+- [송시연](https://velog.io/@dustle/Findex-%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-%EA%B0%9C%EB%B0%9C-%EB%A6%AC%ED%8F%AC%ED%8A%B8)
+- [김민형](https://minbro-kim.github.io/sprint/sprint-1/)
+- [박성국](https://memo50984.tistory.com/17)
+- [성주현](https://velog.io/@juuu00/Findex-%EA%B0%9C%EB%B0%9C-%EB%A6%AC%ED%8F%AC%ED%8A%B8)
+- [전창현](https://velog.io/@wjsckdgus163/%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-%ED%9A%8C%EA%B3%A0%EB%A1%9D-%EA%B8%88%EC%9C%B5-%EC%A7%80%EC%88%98-%EB%8C%80%EC%8B%9C%EB%B3%B4%EB%93%9C-%EB%B0%B1%EC%97%94%EB%93%9C-%EA%B0%9C%EB%B0%9C-%EB%A6%AC%ED%8F%AC%ED%8A%B8)
